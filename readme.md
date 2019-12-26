@@ -1,4 +1,5 @@
 # Pandas
+In diesem Repo fasse ich mein Wissen zu Python und Fantasyfootball zusammen.
 
 ## Einführung zu Pandas
 Die fünf Schritte der Datenanalyse:
