@@ -1,13 +1,14 @@
 # Pandas
-In diesem Repo fasse ich mein Wissen zu Python und Fantasyfootball zusammen.
+In diesem Repository fasse ich zusammen, was ich über Python, Pandas, etc. im Zusammenhang mit FantasyFootball erarbeitet habe.
+Zusätzlich dient es mir dazu auch, dass ich mein Wissen zusammenhalte.
 
 ## Einführung zu Pandas
 Die fünf Schritte der Datenanalyse:
-1. sammeln
-2. speichern
-3. laden
-4. manipulieren
-5. analysieren
+1. Sammeln
+2. Speichern
+3. Laden
+4. Manipulieren
+5. Analysieren
 
 Primär wird Pandas hierbei für Schritt 4 (Manipulieren) eingesetzt. 
 Jedoch liefert es auch Funktionalität für das Speichern (2), das Laden (3) und Analysieren mit (5).
@@ -25,7 +26,7 @@ Grundsätzlich kann man sagen, dass Pandas als Lib Möglichkeiten zur Verfügung
 
 ### Laden von Daten
 Für das Laden von Daten muss grunsätzlich sowohl pandas, als auch path von der Lib os importiert werden.
-Anschließen wird unter DATA_DIR der Pfad, unter welchem die zu verarbeitenden Daten abgelegt wurden.
+Anschließen wird unter `DATA_DIR` der Pfad, unter welchem die zu verarbeitenden Daten abgelegt wurden.
 
 Mit `path.join(DATA_DIR, 'file.csv')` wird der gesamte Pfad zusammengesetzt.
 Data wird dann mit `pd.read_csv` definiert. also dem Inhalt der entsprechenden CSV-Datei
@@ -41,6 +42,7 @@ data = pd.read_csv(path.join(DATA_DIR, 'file.csv'))
 
 Der Typ von data ist ein Dataframe:
 ```python
-Input: type(adp)
+Input: type(data)
 Output: pandas.core.frame.DataFrame
 ```
+
