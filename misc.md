@@ -34,8 +34,8 @@ data = pd.read_csv(path.join(DATA_DIR, 'data.csv'))
 | `data['new_column'] = (data['column1'] + (2 * data['column2'])` | Hierbei sind selbstverständlich auch mathematische Operatoren möglich |
 | `data['column'].sample(5)`                                   | Liefert eine "Stichprobe" von 5 zufälligen Zeilen zurück     |
 | `data.['column'].str.upper()`                                | Auf String-Spalten kann auch mit String-Functions zugegriffen werden, wie beispielsweise `.str.upper()`, `.str.lower()` oder `.str.replace()` oder ähnlich ...<br />Beispielsweise wäre auch folgendes möglich:<br />`(data['column1'] + ', ' + data['column2'] + ' und ' + data['column3']` |
-|                                                              |                                                              |
-|                                                              |                                                              |
+| `data.['is_new'] = (pg['status'] == 'new')`                  | Bool-Spalten:<br />Neue Spalte mit `true`, wenn `'status' 'new'`ist. |
+| TODO                                                         | TODO                                                         |
 |                                                              |                                                              |
 |                                                              |                                                              |
 |                                                              |                                                              |
