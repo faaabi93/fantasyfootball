@@ -1,6 +1,7 @@
 import pandas as pd
 from os import path
 import matplotlib.pyplot as plt
+import numpy as np
 
 DATA_DIR = "/Users/fabian.baiersdoerfer/Desktop/ff_data/raw"
 
@@ -65,21 +66,12 @@ teamB = teamB.rename(columns={"Week": "week", "TeamB": "team", "TeamBScore": "sc
 complete = pd.concat([teamA, teamB], sort = False)
 complete = complete.sort_values(by = ["week"])
 complete["winner"] = complete.apply(set_winner, axis = 1)
-# complete.reset_index()
-
-"""
-with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-    print(complete)
-with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-    print(complete.query("team == 'Fabian'"))
-"""
 
 # copy to avoid getting the 'SettingwithCopyWarning' error
 output = complete.query("team == @input").copy()
 output["opponentScore"] = output.apply(get_opponent_score, axis = 1)
 with pd.option_context('display.max_rows', None, 'display.max_columns', None):
     print(output)
-    print(type(output))
 
 series = output.winner
 s_list = series.tolist()
@@ -105,6 +97,7 @@ for item in s_list:
         loss_count = 0
     else:
         loss_count +=1
+
 print("Die längste Niederlagenserie von " + output.iloc[0]["team"] + "betrug: "+ str(max_count))
 
 
