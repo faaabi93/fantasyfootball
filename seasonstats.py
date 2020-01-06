@@ -1,7 +1,7 @@
-import pandas as pd
 from os import path
+
 import matplotlib.pyplot as plt
-import numpy as np
+import pandas as pd
 
 DATA_DIR = "/Users/fabian.baiersdoerfer/Desktop/ff_data/raw"
 
@@ -11,8 +11,9 @@ owner2017 = pd.read_csv(path.join(DATA_DIR, "2017_season_owners.csv"), sep=";")
 results1 = results2017[["Week", "Type", "TeamA", "TeamAScore"]]
 results2 = results2017[["Week", "Type", "TeamB", "TeamBScore"]]
 
-input = input("Gib' den Teamnamen ein: ")
+userinput = input("Gib' den Teamnamen ein: ")
 print("---------------------------------------------------------------------")
+
 
 def winner(row):
     if row["TeamAScore"] > row["TeamBScore"]:
@@ -22,8 +23,10 @@ def winner(row):
     else:
         return "draw"
 
+
 def teams(row):
     return [row["TeamA"], row["TeamB"]]
+
 
 def win_margin(row):
     if row["TeamAScore"] > row["TeamBScore"]:
@@ -33,16 +36,18 @@ def win_margin(row):
     else:
         return 0
 
+
 def set_winner(row):
     if row["team"] == row["winner"]:
         return True
     else:
         return False
 
+
 def get_opponent_score(row):
-    if row["winner"] == True:
+    if row["winner"]:
         return row["score"] - row["margin"]
-    elif row["winner"] == False:
+    elif not row["winner"]:
         return row["score"] + row["margin"]
     else:
         return row["score"]
@@ -63,13 +68,13 @@ teamA = teamA.rename(columns={"Week": "week", "TeamA": "team", "TeamAScore": "sc
 teamB = teamB.rename(columns={"Week": "week", "TeamB": "team", "TeamBScore": "score", "TeamA": "opponent"})
 
 # concatenation of the two created dataframes
-complete = pd.concat([teamA, teamB], sort = False)
-complete = complete.sort_values(by = ["week"])
-complete["winner"] = complete.apply(set_winner, axis = 1)
+complete = pd.concat([teamA, teamB], sort=False)
+complete = complete.sort_values(by=["week"])
+complete["winner"] = complete.apply(set_winner, axis=1)
 
 # copy to avoid getting the 'SettingwithCopyWarning' error
-output = complete.query("team == @input").copy()
-output["opponentScore"] = output.apply(get_opponent_score, axis = 1)
+output = complete.query("team == @userinput").copy()
+output["opponentScore"] = output.apply(get_opponent_score, axis=1)
 with pd.option_context('display.max_rows', None, 'display.max_columns', None):
     print(output)
 
@@ -79,13 +84,13 @@ win_count = 0
 max_count = 0
 for item in s_list:
     if item:
-        win_count +=1
+        win_count += 1
     else:
         if win_count > max_count:
             max_count = win_count
         win_count = 0
 print("---------------------------------------------------------------------")
-print("Die längste Siegesserie von " + output.iloc[0]["team"] + "betrug: "+ str(max_count))
+print("Die längste Siegesserie von " + output.iloc[0]["team"] + "betrug: " + str(max_count))
 
 s_list = series.tolist()
 loss_count = 0
@@ -96,20 +101,19 @@ for item in s_list:
             max_count = loss_count
         loss_count = 0
     else:
-        loss_count +=1
+        loss_count += 1
 
-print("Die längste Niederlagenserie von " + output.iloc[0]["team"] + "betrug: "+ str(max_count))
+print("Die längste Niederlagenserie von " + output.iloc[0]["team"] + "betrug: " + str(max_count))
 
-
-print("Die Saisonbilanz von "  + output.iloc[0]["team"] + "für die Saison betrug: ")
+print("Die Saisonbilanz von " + output.iloc[0]["team"] + "für die Saison betrug: ")
 print("---------------------------------------------------------------------")
 
 ax = plt.gca()
 # draws the lines in the graph
-output.plot(kind = 'line',x = 'week',y = 'score',ax = ax)
-output.plot(kind = 'line',x = 'week',y = 'opponentScore', color = 'red', ax = ax)
+output.plot(kind='line', x='week', y='score', ax=ax)
+output.plot(kind='line', x='week', y='opponentScore', color='red', ax=ax)
 # sets the range for the x and y axis
-ax.set_xlim([0,16])
-ax.set_ylim([0,200])
+ax.set_xlim([0, 16])
+ax.set_ylim([0, 200])
 
 plt.show()

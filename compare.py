@@ -41,9 +41,9 @@ def set_winner(row):
         return False
 
 def get_opponent_score(row):
-    if row["winner"] == True:
+    if row["winner"]:
         return row["score"] - row["margin"]
-    elif row["winner"] == False:
+    elif not row["winner"]:
         return row["score"] + row["margin"]
     else:
         return row["score"]
