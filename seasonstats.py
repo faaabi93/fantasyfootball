@@ -2,6 +2,7 @@ import pandas as pd
 from os import path
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 
 DATA_DIR = "/Users/fabian.baiersdoerfer/Desktop/ff_data/raw"
 
@@ -113,4 +114,3 @@ ax.set_xlim([0,16])
 ax.set_ylim([0,200])
 
 plt.show()
-
