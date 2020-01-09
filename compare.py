@@ -40,17 +40,12 @@ print("Geben Sie die zu vergleichenden Teamnamen ein. stop für break")
 
 while k < b:
   key = k
-  value = input("Teamnamen für das " + str(k+1) + ". Team eingeben ")
+  value = input("Teamnamen für das " + str(k+1) + ". Team eingeben: ")
   if value == "stop":
     break
   else:
     a[key] = value 
     k += 1
-
-for k, v in a.items():
-    print(k, v)
-
-locals().update(a)
 
 def winner(row):
     if row["TeamAScore"] > row["TeamBScore"]:
@@ -111,26 +106,17 @@ complete["winner"] = complete.apply(set_winner, axis=1)
 a_list = list(a.values())
 output_list = []
 
+mean_df = complete.mean()
+print(mean_df)
+mean_score = mean_df.iloc[2]
+
 for i in a_list:
   output = complete.query("team == @i").copy()
   output["opponentScore"] = output.apply(get_opponent_score, axis=1)
   with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+    print("Dataframe für das Team von " + i)
     print(output)
   output_list.append(output)
-
-print(output_list)
-"""
-# copy to avoid getting the 'SettingwithCopyWarning' error
-output = complete.query("team == @a[0]").copy()
-output["opponentScore"] = output.apply(get_opponent_score, axis=1)
-with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-    print(output)
-
-output2 = complete.query("team == @a[1]").copy()
-output2["opponentScore"] = output2.apply(get_opponent_score, axis=1)
-with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-    print(output2)
-"""
 
 comparison = pd.concat(output_list, sort=False)
 
@@ -145,6 +131,8 @@ g = sns.relplot(x='week', y='score', hue="team", kind='line', data=comparison)
 keyword = {"color": "black", "linestyle": "--", "linewidth": 0.75}
 # Creating a vertical line where the playoffs start
 plt.axvline(14, 0, 200, **keyword)
+plt.axhline(100, **keyword)
+plt.axhline(mean_score, **keyword)
 # Set x and y limit to the graph
 g.set(ylim=(0, 200))
 g.set(xlim=(0, 16))
