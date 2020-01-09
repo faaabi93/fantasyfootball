@@ -71,6 +71,7 @@ while True:
 
 print("Welche Teams möchtest du vergleichen?")
 
+# TODO: Alle Season und dann für jede Season eigenes Bild
 a = {}
 k = 0
 if season == 2017:
@@ -80,8 +81,8 @@ else:
     b = 12
     print("Maximal 12 Teams möglich")
 
+#TODO: Eingabe "All" --> Alle Spieler anzeigen
 print("Geben Sie die zu vergleichenden Teamnamen ein. stop für break")
-
 while k < b:
     key = k
     value = input("Teamnamen für das " + str(k + 1) + ". Team eingeben: ")
@@ -90,6 +91,7 @@ while k < b:
     elif value == "":
         break
     else:
+        #TODO: Check auf verfügbare Spieler (auch bei Ausgabe beachten und eventuell exception abfangen
         a[key] = value
         k += 1
 
