@@ -13,9 +13,6 @@ owners2018 = pd.read_csv(path.join(DATA_DIR, "2018_season_owners.csv"), sep=";")
 owners2019 = pd.read_csv(path.join(DATA_DIR, "2019_season_owners.csv"), sep=";")
 owners = pd.concat([owners2017, owners2018, owners2019], sort=False)
 
-results1 = results[["Week", "Type", "TeamA", "TeamAScore"]]
-results2 = results[["Week", "Type", "TeamB", "TeamBScore"]]
-
 availableSeasons = [2017, 2018, 2019]
 season = 0
 
@@ -92,26 +89,27 @@ print("Folgende Spieler sind für die Saison " + str(season) + " verfügbar:\n" 
 
 # TODO: Alle Season und dann für jede Season eigenes Bild
 requestedOwners = {}
-k = 0
-b = len(availableOwners)
+count = 0
+ownerCount = len(availableOwners)
 usedOwners = []
 
 print("Geben Sie die zu vergleichenden Spieler ein.\nEingabe von 'stop' oder keine Eingabe (Enter) führt zum fortfahren\nEingabe von 'all', um alle Spieler anzufordern.")
-while k < b:
-    key = k
-    value = input("Teamnamen für das " + str(k + 1) + ". Team eingeben: ")
+while count < ownerCount:
+    key = count
+    value = input("Teamnamen für das " + str(count + 1) + ". Team eingeben: ")
     if value == "stop":
         break
     elif value == "":
         break
     elif value == "all":
+      usedOwners = []
       for owner in availableOwners:
         requestedOwners[availableOwners.index(owner)] = owner
       break
     else:
         if value in availableOwners and value not in usedOwners:
           requestedOwners[key] = value
-          k += 1
+          count += 1
           usedOwners.append(value)
         elif value in usedOwners:
           print("Du forderst diesen Spieler bereits an!")
@@ -123,16 +121,33 @@ output_list = []
 
 mean_df = complete.mean()
 mean_score = mean_df.iloc[1]
+output_dict = {}
 
-for i in requestedOwners_list:
-    output = complete.query("team == @i").copy()
+for owner in requestedOwners_list:
+    output = complete.query("team == @owner").copy()
     output["opponentScore"] = output.apply(opponent_score, axis=1)
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        print("Dataframe für das Team von " + i)
+        print("Dataframe für das Team von " + owner)
         print(output)
+        """ 
+        TODO: Anzeige der Durchschnittswerte der beiden Teams:
+        Team------------Fabian-------Peter
+        ---------------------------------
+        durschn. Punkte----100---------80
+        Siege---------------15----------2
+        etc.
+        """
+        if len(usedOwners) == int(2):
+          output_dict[owner] = output[["score", "winner", "opponentScore"]].sum()
     output_list.append(output)
 
-completeList = pd.concat(output_list, sort=False)
+# TODO: Team1 vs Team2 simulieren und Ergebnis anzeigen.
+# TODO: Immer gegen den Genger von Team2 simulieren
+# TODO: Tabelle?!
+
+print("Jetztert")
+print(output_dict)
+output_df = pd.concat(output_list, sort=False)
 
 # Array of specific colors I later want to use in the hue in the replot-function
 colors = ["#4374B3", "#FF0B04", "#3CB44B", "#FFE119", "#FF5733", "#911EB4", "#42D4F4",
@@ -143,7 +158,8 @@ pltmeanline = {"color": "grey", "linestyle": "-", "linewidth": 0.75}
 
 # Setting the custom colorpalette
 sns.set_palette(sns.color_palette(colors))
-g = sns.relplot(x='week', y='score', hue="team", kind='line', data=completeList)
+sns.set_style("whitegrid")
+g = sns.relplot(x='week', y='score', hue="team", kind='line', data=output_df)
 plt.axvline(14, 0, 200, **pltlines)
 plt.axhline(100, **pltlines)
 plt.axhline(mean_score, **pltmeanline)
