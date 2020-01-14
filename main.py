@@ -3,7 +3,7 @@ from os import path
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-DATA_DIR = ""
+DATA_DIR = "/Users/fabian.baiersdoerfer/Desktop/ff_data"
 
 results2017 = pd.read_csv(path.join(DATA_DIR, "2017_season_results.csv"), sep=";")
 results2018 = pd.read_csv(path.join(DATA_DIR, "2018_season_results.csv"), sep=";")
@@ -127,6 +127,9 @@ while count < ownerCount:
 requestedOwners_list = list(requestedOwners.values())
 output_list = []
 
+if len(requestedOwners) == 2:
+    confirmation = input("Möchtest du diese beiden Spieler genauer betrachten?")
+
 mean_df = complete.mean()
 mean_score = mean_df.iloc[1]
 output_dict = {}
@@ -158,7 +161,25 @@ print(output_dict)
 output_df = pd.concat(output_list, sort=False)
 
 complete["opponentScore"] = complete.apply(opponent_score, axis=1)
-print(complete.groupby("team").agg({"winner":"sum", "score":["max", "min", "sum", "mean"], "opponentScore":["max", "min", "sum",  "mean"]}))
+print(complete.groupby("team").agg({"winner":"sum", "score":["max", "min", "sum", "mean"], "opponentScore":["sum",  "mean"]}))
+
+# TODO: Saison mit dem Schedule eines anderen Teams durchspielen
+
+if confirmation:
+    if confirmation == "all":
+        for team1 in availableOwners:
+            for team2 in availableOwners:
+                if team1 != team2:
+                    print(team1 + " vs " + team2)
+                    team1_df = complete.query("team == @team1")[["week", "team", "score"]]
+                    team2_df = complete.query("team == @team2")[["week", "opponent", "opponentScore"]]
+                    team_df = pd.merge(team1_df, team2_df, on="week")
+                    team_df = team_df.rename(columns={"team": "TeamA", "score": "TeamAScore", "opponent": "TeamB", "opponentScore": "TeamBScore"})
+                    team_df["winner"] = team_df.apply(winner, axis=1)
+                    team_df["margin"] = team_df.apply(win_margin, axis=1)
+                    team_df = team_df.rename(columns={"TeamA": "team", "TeamAScore": "score", "TeamB": "opponent", "TeamBScore": "opponentScore"})
+                    team_df["winner"] = team_df.apply(winner_bool, axis=1)
+                    print(team_df)
 
 
 # Array of specific colors I later want to use in the hue in the replot-function
@@ -176,6 +197,6 @@ plt.axvline(14, 0, 200, **pltlines)
 plt.axhline(100, **pltlines)
 plt.axhline(mean_score, **pltmeanline)
 plt.title("Season " + str(season))
-g.set(ylim=(0, 200), xlim=(0, 16), ylabel="Punkte", xlabel="Woche")
+g.set(ylim=(0, 200), xlim=(1, 16), ylabel="Punkte", xlabel="Woche")
 g.savefig("test.png")
 plt.show()
