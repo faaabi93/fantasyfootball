@@ -3,7 +3,7 @@ from os import path
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-DATA_DIR = "/Users/fabian.baiersdoerfer/Desktop/ff_data"
+DATA_DIR = ""
 
 results2017 = pd.read_csv(path.join(DATA_DIR, "2017_season_results.csv"), sep=";")
 results2018 = pd.read_csv(path.join(DATA_DIR, "2018_season_results.csv"), sep=";")
@@ -153,9 +153,13 @@ for owner in requestedOwners_list:
 # TODO: Immer gegen den Genger von Team2 simulieren
 # TODO: Tabelle?!
 
-print("Jetztert")
+print("output_dict:")
 print(output_dict)
 output_df = pd.concat(output_list, sort=False)
+
+complete["opponentScore"] = complete.apply(opponent_score, axis=1)
+print(complete.groupby("team").agg({"winner":"sum", "score":["max", "min", "sum", "mean"], "opponentScore":["max", "min", "sum",  "mean"]}))
+
 
 # Array of specific colors I later want to use in the hue in the replot-function
 colors = ["#4374B3", "#FF0B04", "#3CB44B", "#FFE119", "#FF5733", "#911EB4", "#42D4F4",
