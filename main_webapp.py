@@ -9,7 +9,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 # DATA_DIR = "/Users/fabian.baiersdoerfer/Desktop/ff_data"
 
 """ results2017 = pd.read_csv(path.join(DATA_DIR, "2017_season_results.csv"), sep=";") """
-results2018 = pd.read_csv(path.join(DATA_DIR, "2018_season_results.csv"), sep=";")
+results = pd.read_csv(path.join(DATA_DIR, "2018_season_results.csv"), sep=";")
 """ results2019 = pd.read_csv(path.join(DATA_DIR, "2019_season_results.csv"), sep=";")
 results = pd.concat([results2017, results2018, results2019], sort=False)
 owners2017 = pd.read_csv(path.join(DATA_DIR, "2017_season_owners.csv"), sep=";")
