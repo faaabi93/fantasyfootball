@@ -1,92 +1,40 @@
 import pandas as pd
-from os import path
-import matplotlib.pyplot as plt
 import seaborn as sns
+import fantasyfunctions as ff
+import matplotlib.pyplot as plt
+import glob
+from os import path
 
-DATA_DIR = "/Users/fabian.baiersdoerfer/Desktop/ff_data"
+# reading all _result.csvs in the DATA_DIR
+DATA_DIR = ''
+all_files = glob.glob(path.join(DATA_DIR, "*_results.csv"))
+master_df = pd.concat((pd.read_csv(f, index_col=None, header=0, sep=';') for f in all_files))
 
-results2017 = pd.read_csv(path.join(DATA_DIR, "2017_season_results.csv"), sep=";")
-results2018 = pd.read_csv(path.join(DATA_DIR, "2018_season_results.csv"), sep=";")
-results2019 = pd.read_csv(path.join(DATA_DIR, "2019_season_results.csv"), sep=";")
-results = pd.concat([results2017, results2018, results2019], sort=False)
-owners2017 = pd.read_csv(path.join(DATA_DIR, "2017_season_owners.csv"), sep=";")
-owners2018 = pd.read_csv(path.join(DATA_DIR, "2018_season_owners.csv"), sep=";")
-owners2019 = pd.read_csv(path.join(DATA_DIR, "2019_season_owners.csv"), sep=";")
-owners = pd.concat([owners2017, owners2018, owners2019], sort=False)
-
-availableSeasons = [2017, 2018, 2019]
-season = 0
-
-
-def winner(row):
-    """ returns the winner (Teamname) of the matchup """
-    if row["TeamAScore"] > row["TeamBScore"]:
-        return row["TeamA"]
-    elif row["TeamAScore"] < row["TeamBScore"]:
-        return row["TeamB"]
-    else:
-        return "draw"
-
-
-def teams(row):
-    """ returns the teams ins the specific matchup """
-    return [row["TeamA"], row["TeamB"]]
-
-
-def win_margin(row):
-    """ returns the win_margin of TeamA, negative return value indicates a loss """
-    if row["TeamAScore"] > row["TeamBScore"]:
-        return row["TeamAScore"] - row["TeamBScore"]
-    elif row["TeamAScore"] < row["TeamBScore"]:
-        return row["TeamBScore"] - row["TeamAScore"]
-    else:
-        return 0
-
-
-def winner_bool(row):
-    """ returns a bool which indicates whether the team has won the matchup """
-    if row["team"] == row["winner"]:
-        return True
-    else:
-        return False
-
-
-def opponent_score(row):
-    """ calculates the opponents score based on own score and the win/los margin """
-    if row["winner"]:
-        return row["score"] - row["margin"]
-    elif not row["winner"]:
-        return row["score"] + row["margin"]
-    else:
-        return row["score"]
-
+availableSeasons = master_df["season"].drop_duplicates().sort_values().tolist()
+print("Folgende Saisons sind verfügbar: " + ", ".join(str(year) for year in availableSeasons))
 
 while True:
-    try:
-        season = int(str(input("Welche Saison möchtest du analysieren? ")).strip())
-        print(season)
-        if season in availableSeasons:
-            print("---------------------------------------------------------")
-            break
-        else:
-            print("Diese Saison ist nicht verfügbar!")
-    except ValueError:
-        print("Das ist kein zulässiges Format. Gib einfach nur ein Jahr ein. Beispielsweise '2017'")
+  try:
+    season = int(str(input("Welche Saison möchtest du analysieren? ")).strip())
+    print(season)
+    if season in availableSeasons:
+      print("---------------------------------------------------------")
+      break
+    else:
+      print("Diese Saison ist nicht verfügbar!")
+  except ValueError:
+    print("Das ist kein zulässiges Format. Gib einfach nur ein Jahr ein. Beispielsweise '2017'")
 
-results = results.query('season == @season').copy()
-results["winner"] = results.apply(winner, axis=1)
-results["margin"] = results.apply(win_margin, axis=1)
-results["teams"] = results.apply(teams, axis=1)
+master_df = master_df.query('season == @season').copy()
+master_df["winner"] = master_df.apply(ff.winner, axis=1)
+master_df["margin"] = master_df.apply(ff.win_margin, axis=1)
+master_df["teams"] = master_df.apply(ff.teams, axis=1)
 
-# Aufteilen des DF in teamA und teamB, sowie verkleinern. Anschleißend umbenennen der Columns um sie später zu
-# concatenaten
-teamA = results[["Week", "Type", "TeamA", "TeamAScore", "margin", "TeamB", "winner", "season"]].rename(
-    columns={"Week": "week", "TeamA": "team", "TeamAScore": "score", "TeamB": "opponent"})
-teamB = results[["Week", "Type", "TeamB", "TeamBScore", "margin", "TeamA", "winner", "season"]].rename(
-    columns={"Week": "week", "TeamB": "team", "TeamBScore": "score", "TeamA": "opponent"})
+teamA = master_df[["Week", "Type", "TeamA", "TeamAScore", "margin", "TeamB", "winner", "season"]].rename(columns={"Week": "week", "TeamA": "team", "TeamAScore": "score", "TeamB": "opponent"})
+teamB = master_df[["Week", "Type", "TeamB", "TeamBScore", "margin", "TeamA", "winner", "season"]].rename(columns={"Week": "week", "TeamB": "team", "TeamBScore": "score", "TeamA": "opponent"})
 
 complete = pd.concat([teamA, teamB], sort=False).sort_values(by=["week"])
-complete["winner"] = complete.apply(winner_bool, axis=1)
+complete["winner"] = complete.apply(ff.winner_bool, axis=1)
 
 help_df = complete.query("season == @season")
 availableOwners = help_df["team"].drop_duplicates().sort_values().tolist()
@@ -136,7 +84,7 @@ output_dict = {}
 
 for owner in requestedOwners_list:
     output = complete.query("team == @owner").copy()
-    output["opponentScore"] = output.apply(opponent_score, axis=1)
+    output["opponentScore"] = output.apply(ff.opponent_score, axis=1)
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
         print("Dataframe für das Team von " + owner)
         print(output)
@@ -160,7 +108,7 @@ print("output_dict:")
 print(output_dict)
 output_df = pd.concat(output_list, sort=False)
 
-complete["opponentScore"] = complete.apply(opponent_score, axis=1)
+complete["opponentScore"] = complete.apply(ff.opponent_score, axis=1)
 print(complete.groupby("team").agg({"winner":"sum", "score":["max", "min", "sum", "mean"], "opponentScore":["sum",  "mean"]}))
 
 # TODO: Saison mit dem Schedule eines anderen Teams durchspielen
@@ -175,10 +123,10 @@ if confirmation:
                     team2_df = complete.query("team == @team2")[["week", "opponent", "opponentScore"]]
                     team_df = pd.merge(team1_df, team2_df, on="week")
                     team_df = team_df.rename(columns={"team": "TeamA", "score": "TeamAScore", "opponent": "TeamB", "opponentScore": "TeamBScore"})
-                    team_df["winner"] = team_df.apply(winner, axis=1)
-                    team_df["margin"] = team_df.apply(win_margin, axis=1)
+                    team_df["winner"] = team_df.apply(ff.winner, axis=1)
+                    team_df["margin"] = team_df.apply(ff.win_margin, axis=1)
                     team_df = team_df.rename(columns={"TeamA": "team", "TeamAScore": "score", "TeamB": "opponent", "TeamBScore": "opponentScore"})
-                    team_df["winner"] = team_df.apply(winner_bool, axis=1)
+                    team_df["winner"] = team_df.apply(ff.winner_bool, axis=1)
                     print(team_df)
 
 
